@@ -69,6 +69,6 @@ python app.py
 
 ## 👨‍💻 Author
 
-Mohit Kumar Sah
+Mohit Kumar
 Machine Learning Enthusiast
 
