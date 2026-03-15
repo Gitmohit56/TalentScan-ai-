@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>TalentScan AI Result</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand">TalentScan AI</div>
+      <p class="brand-sub">AI Resume Intelligence</p>
+      <ul class="nav">
+        <li><a href="/dashboard">Dashboard</a></li>
+        <li><a class="active" href="/">Upload Resume</a></li>
+        <li><a href="/candidates">Candidates</a></li>
+        <li><a href="/analytics">Analytics</a></li>
+        <li><a href="/settings">Settings</a></li>
+      </ul>
+    </aside>
+
+    <main class="main">
+      <div class="topbar">
+        <div>
+          <h1>Analysis Result</h1>
+          <p class="muted">AI extracted skills and fit score summary.</p>
+        </div>
+        <span class="pill">Report Ready</span>
+      </div>
+
+      <section class="panel">
+        <h4>Candidate Overview</h4>
+        <div class="result-grid">
+          <div class="result-item">
+            <h5>Candidate Skills</h5>
+            <p>{{ skills }}</p>
+          </div>
+          <div class="result-item">
+            <h5>Matched Skills</h5>
+            <p>{{ matched }}</p>
+          </div>
+          <div class="result-item">
+            <h5>Match Score</h5>
+            <p>{{ score }}%</p>
+          </div>
+          <div class="result-item">
+            <h5>Status</h5>
+            <p>{{ status }}</p>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

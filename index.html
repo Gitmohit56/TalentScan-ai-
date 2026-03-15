@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>TalentScan AI</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand">TalentScan AI</div>
+      <p class="brand-sub">AI Resume Intelligence</p>
+      <ul class="nav">
+        <li><a class="active" href="/">Upload Resume</a></li>
+        <li><a href="/dashboard">Dashboard</a></li>
+        <li><a href="/candidates">Candidates</a></li>
+        <li><a href="/analytics">Analytics</a></li>
+        <li><a href="/settings">Settings</a></li>
+      </ul>
+    </aside>
+
+    <main class="main">
+      <div class="topbar">
+        <div>
+          <h1>Resume Upload Center</h1>
+          <p class="muted">Screen candidates faster with AI-driven skill matching.</p>
+        </div>
+        <span class="pill">Secure Processing</span>
+      </div>
+
+      <section class="hero">
+        <div>
+          <h1>Shortlist with confidence</h1>
+          <p>Upload resumes to generate skill extraction, matching, and a fit score in seconds.</p>
+          <div class="card" style="padding:16px;">
+            <h6>What you get</h6>
+            <p class="muted">Structured skills, matched keywords, and status classification.</p>
+          </div>
+        </div>
+
+        <div class="upload-panel">
+          <h3>Upload Resumes</h3>
+          <p class="muted">Choose files or select a folder. ZIP also supported.</p>
+          <form action="/upload" method="POST" enctype="multipart/form-data">
+            <div style="display:grid; gap: 10px;">
+              <label class="muted">Select Files (PDF/ZIP)</label>
+              <input class="file-input" type="file" name="resume" accept=".pdf,.zip" multiple required>
+              <label class="muted">Select Folder (PDFs only)</label>
+              <input class="file-input" type="file" name="resume" accept=".pdf" multiple webkitdirectory directory>
+            </div>
+            <button class="btn" type="submit">Analyze Resumes</button>
+          </form>
+        </div>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

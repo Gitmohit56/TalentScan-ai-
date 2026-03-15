@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>TalentScan AI Candidates</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand">TalentScan AI</div>
+      <p class="brand-sub">AI Resume Intelligence</p>
+      <ul class="nav">
+        <li><a href="/dashboard">Dashboard</a></li>
+        <li><a href="/">Upload Resume</a></li>
+        <li><a class="active" href="/candidates">Candidates</a></li>
+        <li><a href="/analytics">Analytics</a></li>
+        <li><a href="/settings">Settings</a></li>
+      </ul>
+    </aside>
+
+    <main class="main">
+      <div class="topbar">
+        <div>
+          <h1>Candidate List</h1>
+          <p class="muted">Manage and review pipeline candidates.</p>
+        </div>
+        <span class="pill">Total: {{ candidates|length }}</span>
+      </div>
+
+      <section class="panel">
+        <form class="search-row" method="GET" action="/candidates" style="margin-bottom: 18px;">
+          <input class="input" type="text" name="search" placeholder="Filter by skill, role, or keyword" value="{{ search }}">
+          <select class="input" name="status" style="max-width: 200px;">
+            <option value="">All Status</option>
+            <option value="Shortlisted" {% if status_filter == "Shortlisted" %}selected{% endif %}>Shortlisted</option>
+            <option value="Review" {% if status_filter == "Needs Review" %}selected{% endif %}>Needs Review</option>
+            <option value="Rejected" {% if status_filter == "Rejected" %}selected{% endif %}>Rejected</option>
+          </select>
+          <select class="input" name="sort" style="max-width: 160px;">
+            <option value="score" {% if sort == "score" %}selected{% endif %}>Sort by Score</option>
+            <option value="status" {% if sort == "status" %}selected{% endif %}>Sort by Status</option>
+            <option value="id" {% if sort == "id" %}selected{% endif %}>Sort by ID</option>
+          </select>
+          <select class="input" name="dir" style="max-width: 140px;">
+            <option value="desc" {% if direction == "desc" %}selected{% endif %}>Descending</option>
+            <option value="asc" {% if direction == "asc" %}selected{% endif %}>Ascending</option>
+          </select>
+          <button class="btn" type="submit">Apply</button>
+          <a class="btn btn-secondary" href="/export">Export CSV</a>
+          <a class="btn btn-secondary" href="/export?status=Shortlisted">Export Shortlisted</a>
+        </form>
+
+        <table class="table">
+          <tr>
+            <th>ID</th>
+            <th>Skills</th>
+            <th>Score</th>
+            <th>Status</th>
+            <th>Email</th>
+            <th>Resume</th>
+            <th>Action</th>
+            <th>View</th>
+            <th>Rating</th>
+          </tr>
+          {% for c in candidates %}
+          <tr>
+            <td>{{ c[0] }}</td>
+            <td>{{ c[1] }}</td>
+            <td>{{ c[3] }}%</td>
+            <td>
+              {% if c[4] == 'Shortlisted' %}
+                <span class="badge green">{{ c[4] }}</span>
+              {% elif c[4] == 'Rejected' %}
+                <span class="badge red">{{ c[4] }}</span>
+              {% else %}
+                <span class="badge yellow">{{ c[4] }}</span>
+              {% endif %}
+            </td>
+            <td>{{ c[6] if c[6] else '-' }}</td>
+            <td>
+              {% if c[4] == 'Shortlisted' and c[5] %}
+                <a class="btn btn-secondary" href="/download/{{ c[0] }}">Download</a>
+              {% else %}
+                -
+              {% endif %}
+            </td>
+            <td>
+              {% if c[4] == 'Needs Review' %}
+                <form method="POST" action="/update-status" style="display:inline;" onsubmit="return confirm('Shortlist this candidate?');">
+                  <input type="hidden" name="candidate_id" value="{{ c[0] }}">
+                  <input type="hidden" name="status" value="Shortlisted">
+                  <button class="btn" type="submit">Shortlist</button>
+                </form>
+                <form method="POST" action="/update-status" style="display:inline; margin-left: 6px;" onsubmit="return confirm('Reject this candidate?');">
+                  <input type="hidden" name="candidate_id" value="{{ c[0] }}">
+                  <input type="hidden" name="status" value="Rejected">
+                  <button class="btn btn-secondary" type="submit">Reject</button>
+                </form>
+              {% else %}
+                -
+              {% endif %}
+            </td>
+            <td>
+              <a class="btn btn-secondary" href="/candidate/{{ c[0] }}">View</a>
+            </td>
+            <td>
+              <form method="POST" action="/update-rating">
+                <input type="hidden" name="candidate_id" value="{{ c[0] }}">
+                <select class="input" name="rating" style="max-width: 90px;">
+                  <option value="">-</option>
+                  <option value="1" {% if c[7] == 1 %}selected{% endif %}>1</option>
+                  <option value="2" {% if c[7] == 2 %}selected{% endif %}>2</option>
+                  <option value="3" {% if c[7] == 3 %}selected{% endif %}>3</option>
+                  <option value="4" {% if c[7] == 4 %}selected{% endif %}>4</option>
+                  <option value="5" {% if c[7] == 5 %}selected{% endif %}>5</option>
+                </select>
+                <button class="btn btn-secondary" type="submit" style="margin-left: 6px;">Save</button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </table>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

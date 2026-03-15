@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>TalentScan AI Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand">TalentScan AI</div>
+      <p class="brand-sub">AI Resume Intelligence</p>
+      <ul class="nav">
+        <li><a class="active" href="/dashboard">Dashboard</a></li>
+        <li><a href="/">Upload Resume</a></li>
+        <li><a href="/candidates">Candidates</a></li>
+        <li><a href="/analytics">Analytics</a></li>
+        <li><a href="/settings">Settings</a></li>
+      </ul>
+    </aside>
+
+    <main class="main">
+      <div class="topbar">
+        <div>
+          <h1>HR Dashboard</h1>
+          <p class="muted">Live overview of sourcing, screening, and scoring.</p>
+        </div>
+        <span class="pill">Updated Today</span>
+      </div>
+
+      <section class="stats-grid">
+        <a class="card card-link" href="/dashboard">
+          <h6>Total Candidates</h6>
+          <h3>{{ total }}</h3>
+          <div class="trend">All time in database</div>
+        </a>
+        <a class="card card-link" href="/dashboard?status=Shortlisted">
+          <h6>Shortlisted</h6>
+          <h3>{{ shortlisted }}</h3>
+          <div class="trend">High-fit profiles</div>
+        </a>
+        <a class="card card-link" href="/dashboard?status=Rejected">
+          <h6>Rejected</h6>
+          <h3>{{ rejected }}</h3>
+          <div class="trend">Below threshold</div>
+        </a>
+        <a class="card card-link" href="/dashboard?status=Review">
+          <h6>Review</h6>
+          <h3>{{ review }}</h3>
+          <div class="trend">Needs manual check</div>
+        </a>
+      </section>
+
+      <section class="panel-grid">
+        <div class="panel">
+          <h4>Status Breakdown</h4>
+          <canvas id="statusChart"></canvas>
+        </div>
+        <div class="panel">
+          <h4>Average Fit Score</h4>
+          <canvas id="scoreChart"></canvas>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="topbar" style="margin-bottom: 16px;">
+          <div>
+            <h4>Candidate Pipeline</h4>
+            <p class="muted">Search by skill or keyword.</p>
+          </div>
+          <div style="display: flex; gap: 10px; align-items: center;">
+            <a class="btn btn-secondary" href="/export">Export CSV</a>
+            {% if status_filter %}
+              <a class="btn btn-secondary" href="/export?status={{ status_filter }}">Export Filtered</a>
+            {% else %}
+              <a class="btn btn-secondary" href="/export?status=Shortlisted">Export Shortlisted</a>
+            {% endif %}
+          </div>
+        </div>
+        <form class="search-row" method="GET" action="/dashboard" style="margin-bottom: 12px;">
+          <input class="input" type="text" name="search" placeholder="Search skill..." value="{{ search }}">
+          <button class="btn" type="submit">Search</button>
+        </form>
+        {% if status_filter %}
+        <p class="muted">Filtered by status: <strong>{{ status_filter }}</strong></p>
+        {% endif %}
+
+        <table class="table">
+          <tr>
+            <th>ID</th>
+            <th>Skills</th>
+            <th>Matched</th>
+            <th>Score</th>
+            <th>Status</th>
+            <th>Email</th>
+            <th>Resume</th>
+            <th>Action</th>
+            <th>View</th>
+            <th>Rating</th>
+          </tr>
+          {% for c in candidates %}
+          <tr>
+            <td>{{ c[0] }}</td>
+            <td>{{ c[1] }}</td>
+            <td>{{ c[2] }}</td>
+            <td>{{ c[3] }}%</td>
+            <td>
+              {% if c[4] == 'Shortlisted' %}
+                <span class="badge green">{{ c[4] }}</span>
+              {% elif c[4] == 'Rejected' %}
+                <span class="badge red">{{ c[4] }}</span>
+              {% else %}
+                <span class="badge yellow">{{ c[4] }}</span>
+              {% endif %}
+            </td>
+            <td>{{ c[6] if c[6] else '-' }}</td>
+            <td>
+              {% if c[4] == 'Shortlisted' and c[5] %}
+                <a class="btn btn-secondary" href="/download/{{ c[0] }}">Download</a>
+              {% else %}
+                -
+              {% endif %}
+            </td>
+            <td>
+              {% if c[4] == 'Needs Review' %}
+                <form method="POST" action="/update-status" style="display:inline;" onsubmit="return confirm('Shortlist this candidate?');">
+                  <input type="hidden" name="candidate_id" value="{{ c[0] }}">
+                  <input type="hidden" name="status" value="Shortlisted">
+                  <button class="btn" type="submit">Shortlist</button>
+                </form>
+                <form method="POST" action="/update-status" style="display:inline; margin-left: 6px;" onsubmit="return confirm('Reject this candidate?');">
+                  <input type="hidden" name="candidate_id" value="{{ c[0] }}">
+                  <input type="hidden" name="status" value="Rejected">
+                  <button class="btn btn-secondary" type="submit">Reject</button>
+                </form>
+              {% else %}
+                -
+              {% endif %}
+            </td>
+            <td>
+              <a class="btn btn-secondary" href="/candidate/{{ c[0] }}">View</a>
+            </td>
+            <td>
+              <form method="POST" action="/update-rating">
+                <input type="hidden" name="candidate_id" value="{{ c[0] }}">
+                <select class="input" name="rating" style="max-width: 90px;">
+                  <option value="">-</option>
+                  <option value="1" {% if c[7] == 1 %}selected{% endif %}>1</option>
+                  <option value="2" {% if c[7] == 2 %}selected{% endif %}>2</option>
+                  <option value="3" {% if c[7] == 3 %}selected{% endif %}>3</option>
+                  <option value="4" {% if c[7] == 4 %}selected{% endif %}>4</option>
+                  <option value="5" {% if c[7] == 5 %}selected{% endif %}>5</option>
+                </select>
+                <button class="btn btn-secondary" type="submit" style="margin-left: 6px;">Save</button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </table>
+      </section>
+    </main>
+  </div>
+
+  <script>
+  new Chart(document.getElementById("statusChart"), {
+    type: "doughnut",
+    data: {
+      labels: ["Shortlisted", "Review", "Rejected"],
+      datasets: [{
+        data: [{{ shortlisted }}, {{ review }}, {{ rejected }}],
+        backgroundColor: ["#12b886", "#ffb020", "#ef4444"],
+        borderWidth: 0
+      }]
+    },
+    options: {
+      plugins: { legend: { position: "bottom" } }
+    }
+  })
+
+  new Chart(document.getElementById("scoreChart"), {
+    type: "bar",
+    data: {
+      labels: ["Candidates"],
+      datasets: [{
+        label: "Average Score",
+        data: [{{ avg_score }}],
+        backgroundColor: "#0b6cff",
+        borderRadius: 12
+      }]
+    },
+    options: {
+      scales: {
+        y: { beginAtZero: true, max: 100 }
+      },
+      plugins: { legend: { display: false } }
+    }
+  })
+  </script>
+</body>
+</html>

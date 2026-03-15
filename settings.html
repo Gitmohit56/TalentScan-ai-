@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>TalentScan AI Settings</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand">TalentScan AI</div>
+      <p class="brand-sub">AI Resume Intelligence</p>
+      <ul class="nav">
+        <li><a href="/dashboard">Dashboard</a></li>
+        <li><a href="/">Upload Resume</a></li>
+        <li><a href="/candidates">Candidates</a></li>
+        <li><a href="/analytics">Analytics</a></li>
+        <li><a class="active" href="/settings">Settings</a></li>
+      </ul>
+    </aside>
+
+    <main class="main">
+      <div class="topbar">
+        <div>
+          <h1>Settings</h1>
+          <p class="muted">Configure scoring rules and notifications.</p>
+        </div>
+        <span class="pill">Admin</span>
+      </div>
+
+      <section class="panel">
+        <h4>Configuration</h4>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Minimum Fit Score</label>
+            <input class="input" type="number" placeholder="e.g. 70">
+          </div>
+          <div class="form-group">
+            <label>Review Threshold</label>
+            <input class="input" type="number" placeholder="e.g. 50">
+          </div>
+          <div class="form-group">
+            <label>Notification Email</label>
+            <input class="input" type="email" placeholder="hr@company.com">
+          </div>
+          <div class="form-group">
+            <label>Default Role Tag</label>
+            <input class="input" type="text" placeholder="Product Engineer">
+          </div>
+        </div>
+        <div style="margin-top: 18px;">
+          <button class="btn" type="button">Save Settings</button>
+          <button class="btn btn-secondary" type="button" style="margin-left: 10px;">Reset</button>
+        </div>
+      </section>
+    </main>
+  </div>
+</body>
+</html>
